@@ -1,91 +1,112 @@
 import React, { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Card, CardContent, CardHeader, Divider, Box, Typography } from '@mui/material';
+import Chart from 'react-apexcharts';
+import { Card, CardContent, CardHeader, Divider, Box, Typography, useTheme } from '@mui/material';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const SubscriptionsChart = ({ filters }) => {
-  const [chartData, setChartData] = useState(null);
+  const theme = useTheme();
+  const [series, setSeries] = useState([]);
 
   useEffect(() => {
     // Using mock data for a professional look if API is not fully ready
-    const mockData = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-      datasets: [
-        {
-          label: 'Subscriptions',
-          data: [65, 59, 80, 81, 56, 55, 40],
-          fill: true,
-          borderColor: '#38bdf8',
-          backgroundColor: 'rgba(56, 189, 248, 0.1)',
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#38bdf8',
-        }
-      ]
-    };
-    setChartData(mockData);
+    const mockSeries = [
+      {
+        name: 'Subscriptions',
+        data: [65, 59, 80, 81, 56, 55, 40]
+      }
+    ];
+    setSeries(mockSeries);
   }, [filters]);
 
   const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
+    chart: {
+      height: 300,
+      type: 'area',
+      toolbar: {
+        show: false
       },
-      tooltip: {
-        backgroundColor: '#0f172a',
-        padding: 12,
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 13 },
-        cornerRadius: 8,
+      sparkline: {
+        enabled: false
+      },
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800,
       }
     },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: '#94a3b8' }
-      },
-      y: {
-        grid: { borderDash: [5, 5], color: '#e2e8f0' },
-        ticks: { color: '#94a3b8' }
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      curve: 'smooth',
+      width: 3,
+      colors: ['#38bdf8']
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.45,
+        opacityTo: 0.05,
+        stops: [20, 100, 100, 100]
       }
-    }
+    },
+    xaxis: {
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+      labels: {
+        style: {
+          colors: '#94a3b8',
+          fontSize: '12px',
+          fontFamily: 'Inter, sans-serif'
+        }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#94a3b8',
+          fontSize: '12px',
+          fontFamily: 'Inter, sans-serif'
+        }
+      }
+    },
+    grid: {
+      borderColor: '#f1f5f9',
+      strokeDashArray: 4,
+      xaxis: {
+        lines: {
+          show: false
+        }
+      }
+    },
+    tooltip: {
+      theme: 'dark',
+      x: {
+        show: true
+      }
+    },
+    colors: ['#38bdf8']
   };
 
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%', borderRadius: 4 }}>
       <CardHeader 
         title="Subscription Growth" 
         titleTypographyProps={{ variant: 'h6', fontWeight: 700 }}
-        action={<ShowChartIcon color="action" />}
+        action={<ShowChartIcon color="action" sx={{ opacity: 0.5 }} />}
         sx={{ pb: 1 }}
       />
       <Divider />
       <CardContent>
         <Box sx={{ height: 300, width: '100%' }}>
-          {chartData ? (
-            <Line data={chartData} options={options} />
+          {series.length > 0 ? (
+            <Chart options={options} series={series} type="area" height="100%" />
           ) : (
             <Typography color="text.secondary">Loading chart...</Typography>
           )}
@@ -96,3 +117,4 @@ const SubscriptionsChart = ({ filters }) => {
 };
 
 export default SubscriptionsChart;
+

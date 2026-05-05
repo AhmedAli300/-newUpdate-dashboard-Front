@@ -7,6 +7,8 @@ import QuickActions from "../components/dashboard/QuickActions";
 import FilterOptions from "../components/dashboard/FilterOptions";
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
+import ModernHeatmap from "../components/dashboard/ModernHeatmap";
+
 const DashboardPage = () => {
   const [filters, setFilters] = useState({});
 
@@ -56,7 +58,13 @@ const DashboardPage = () => {
         <Grid item xs={12} lg={4}>
           <RecentTransactions filters={filters} />
         </Grid>
+
+        {/* Heatmap Section */}
+        <Grid item xs={12}>
+          <ModernHeatmap title="Member Activity Distribution" />
+        </Grid>
       </Grid>
+
 
       {/* Quick Actions */}
       <Box mb={2}>

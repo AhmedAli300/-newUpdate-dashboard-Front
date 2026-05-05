@@ -18,32 +18,11 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { Line } from 'react-chartjs-2';
+import Chart from 'react-apexcharts';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const TradeReportPage = () => {
   const [tickets, setTickets] = useState([]);
@@ -98,37 +77,48 @@ const TradeReportPage = () => {
       dataByDate[ticket.date] = (dataByDate[ticket.date] || 0) + 1;
     });
 
+    const sortedDates = Object.keys(dataByDate).sort();
+
     return {
-      labels: Object.keys(dataByDate).sort(),
-      datasets: [
+      series: [
         {
-          label: 'Tickets Sold',
-          data: Object.values(dataByDate),
-          fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
+          name: 'Tickets Sold',
+          data: sortedDates.map(date => dataByDate[date])
         }
-      ]
+      ],
+      options: {
+        chart: {
+          type: 'area',
+          height: 350,
+          toolbar: { show: false },
+          animations: { enabled: true, easing: 'easeinout', speed: 800 }
+        },
+        stroke: { curve: 'smooth', width: 3, colors: ['#10b981'] }, // Using Emerald/Green for Trade
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.45,
+            opacityTo: 0.05,
+            stops: [20, 100, 100, 100]
+          }
+        },
+        xaxis: {
+          categories: sortedDates,
+          labels: { style: { colors: '#94a3b8', fontFamily: 'Inter, sans-serif' } }
+        },
+        yaxis: {
+          labels: { style: { colors: '#94a3b8', fontFamily: 'Inter, sans-serif' } }
+        },
+        grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+        tooltip: { theme: 'dark' },
+        colors: ['#10b981']
+      }
     };
   };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Tickets Over Time'
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true
-      }
-    }
-  };
+  const { series, options } = prepareChartData();
+
 
   const handleExportPDF = () => {
     const pdf = new jsPDF();
@@ -241,7 +231,7 @@ const TradeReportPage = () => {
 
         {/* Chart */}
         <Box sx={{ mb: 3, height: 400 }}>
-          <Line data={prepareChartData()} options={chartOptions} />
+          <Chart options={options} series={series} type="area" height="100%" />
         </Box>
 
         {/* Export Buttons */}
